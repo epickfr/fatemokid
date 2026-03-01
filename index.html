@@ -265,7 +265,7 @@
 </div>
 
 <script>
-const BASE_EMBED = "https://superembed.stream/e";   // cleaner alternative (2026 status)
+const BASE_EMBED = "https://vidsrc.cc/v2/embed";  // Reverted to original vidsrc.cc (may have ads/redirects)
 const BATCH_SIZE = 20;
 const SCROLL_THRESHOLD = 400;
 
@@ -288,7 +288,7 @@ menuToggle.onclick = () => {
   sidebar.classList.toggle("hidden");
 };
 
-// Close sidebar when clicking outside (mobile)
+// Close sidebar on outside click (mobile)
 document.addEventListener("click", e => {
   if (window.innerWidth > 900) return;
   if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
@@ -316,14 +316,20 @@ async function loadData() {
     allItems = Array.isArray(json) ? json : json.data || [];
     renderNextBatch();
   } catch (err) {
-    // fallback demo list
     allItems = [
       { title: "Arcane", tmdb: "995133", imdb: "tt11126994" },
       { title: "The Boys", tmdb: "82856", imdb: "tt1190634" },
-      // ... (keep your original fallback if desired)
+      { title: "Invincible", tmdb: "95557", imdb: "tt6741278" },
+      { title: "Squid Game", tmdb: "93405", imdb: "tt10919420" },
+      { title: "Wednesday", tmdb: "119051", imdb: "tt13443470" },
+      { title: "Stranger Things", tmdb: "66732", imdb: "tt4574334" },
+      { title: "The Umbrella Academy", tmdb: "79126", imdb: "tt1312171" },
+      { title: "The Witcher", tmdb: "71912", imdb: "tt5180504" },
+      { title: "Bridgerton", tmdb: "87771", imdb: "tt2741602" },
+      { title: "You", tmdb: "81040", imdb: "tt7335184" }
     ];
     renderNextBatch();
-    listEl.insertAdjacentHTML('afterbegin', '<div style="padding:10px 16px;color:#a78bfa;font-size:0.9rem;">Demo / fallback titles (API down)</div>');
+    listEl.insertAdjacentHTML('afterbegin', '<div style="padding:10px 16px;color:#a78bfa;font-size:0.9rem;">Demo titles (API unavailable)</div>');
   }
 }
 
@@ -382,12 +388,7 @@ function playItem(item) {
   const id = item.imdb?.startsWith("tt") ? item.imdb : item.tmdb;
   if (!id) return;
 
-  // SuperEmbed format: /e/movie/tt1234567   or /e/tv/tt1234567/1/1
-  let path = currentType === "movie"
-    ? `movie/${id}`
-    : `tv/${id}/1/1`;   // default to S01E01 for TV → user can change later if needed
-
-  const url = `${BASE_EMBED}/${path}`;
+  let url = `${BASE_EMBED}/${currentType}/${id}?autoPlay=false`;
 
   const frame = document.getElementById("frame");
   frame.classList.remove("loaded");
@@ -452,10 +453,8 @@ document.getElementById("tvBtn").onclick = () => {
 searchEl.addEventListener("input", debounce(e => {
   const q = e.target.value.toLowerCase().trim();
   if (!q) {
-    listEl.innerHTML = "";
-    displayedCount = 0;
-    allItems = [...(JSON.parse(localStorage.getItem("fullList") || "[]"))]; // restore if you cache full list
-    renderNextBatch();
+    // Optional: reload full list if you cache it earlier
+    loadData();  // simplest way to reset
     return;
   }
   const filtered = allItems.filter(i => (i.title || i.name || "").toLowerCase().includes(q));
