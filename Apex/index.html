@@ -1,0 +1,653 @@
+//Cant tell if this is skidded or not, idrfc im adding it
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apex Scientific Calculator</title>
+    <style>
+        :root {
+            --bg-body: #0f172a;
+            --bg-calc: #1e293b;
+            --bg-display: #0f172a;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --btn-num: #334155;
+            --btn-op: #1e293b;
+            --btn-sci: #475569;
+            --equal: #f59e0b;
+            --border: #334155;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        [data-theme="light"] {
+            --bg-body: #f1f5f9;
+            --bg-calc: #ffffff;
+            --bg-display: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent: #0284c7;
+            --accent-hover: #0369a1;
+            --btn-num: #ffffff;
+            --btn-op: #f1f5f9;
+            --btn-sci: #e2e8f0;
+            --equal: #ea580c;
+            --border: #e2e8f0;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .container {
+            display: flex;
+            gap: 1.5rem;
+            max-width: 1100px;
+            width: 100%;
+            height: 750px;
+        }
+
+        /* Calculator Panel */
+        .calculator {
+            flex: 2;
+            background-color: var(--bg-calc);
+            border-radius: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 1.5rem;
+        }
+
+        /* Sidebar Panels (History and Constants) */
+        .sidebar-panels {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            height: 100%;
+        }
+
+        .panel {
+            flex: 1;
+            background-color: var(--bg-calc);
+            border-radius: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        .panel-list {
+            flex: 1;
+            overflow-y: auto;
+            font-size: 0.9rem;
+        }
+
+        /* Top Bar Controls */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .brand {
+            font-weight: bold;
+            font-size: 1.25rem;
+            letter-spacing: 1px;
+            color: var(--text-main);
+        }
+
+        .brand span {
+            color: var(--accent);
+        }
+
+        .modes {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .toggle-btn {
+            background: var(--btn-sci);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 0.4rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn.active {
+            background-color: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        /* Display */
+        .display {
+            background-color: var(--bg-display);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: flex-end;
+            min-height: 120px;
+            margin-bottom: 1.5rem;
+        }
+
+        #expr-display {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            min-height: 1.5rem;
+            word-break: break-all;
+            text-align: right;
+        }
+
+        #result-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--text-main);
+            margin-top: 0.5rem;
+            word-break: break-all;
+            max-width: 100%;
+        }
+
+        /* Keys Grid */
+        .keys-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.6rem;
+        }
+
+        button.key {
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.1s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            outline: none;
+        }
+
+        button.key:active {
+            transform: scale(0.95);
+        }
+
+        button.key.num {
+            background-color: var(--btn-num);
+        }
+
+        button.key.op {
+            background-color: var(--btn-op);
+            color: var(--accent);
+        }
+
+        button.key.sci {
+            background-color: var(--btn-sci);
+            font-size: 0.9rem;
+        }
+
+        button.key.equal {
+            background-color: var(--equal);
+            color: white;
+            grid-column: span 1;
+        }
+
+        button.key.danger {
+            color: #ef4444;
+        }
+
+        /* Constants Tooltips/Buttons */
+        .const-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.6rem;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            border-radius: 0.5rem;
+        }
+        .const-item:hover {
+            background-color: var(--btn-op);
+        }
+        .const-item .name {
+            font-weight: 500;
+        }
+        .const-item .val {
+            color: var(--accent);
+            font-family: monospace;
+        }
+
+        .history-item {
+            padding: 0.6rem;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            border-radius: 0.5rem;
+        }
+        .history-item:hover {
+            background-color: var(--btn-op);
+        }
+        .history-expr {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .history-res {
+            font-weight: bold;
+            color: var(--text-main);
+        }
+
+        /* Responsive Mobile Layout */
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+                height: auto;
+            }
+            .keys-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+            /* Hide some desktop scientific keys on mobile default view to save space */
+            .sci-hide-mobile {
+                display: none !important;
+            }
+            .sidebar-panels {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- MAIN CALCULATOR -->
+    <div class="calculator">
+        <div class="top-bar">
+            <div class="brand">APEX<span>SCI</span></div>
+            <div class="modes">
+                <button class="toggle-btn active" id="mode-deg" onclick="setAngleMode('deg')">DEG</button>
+                <button class="toggle-btn" id="mode-rad" onclick="setAngleMode('rad')">RAD</button>
+                <button class="toggle-btn" onclick="toggleTheme()" title="Toggle Dark/Light Theme">🌓</button>
+            </div>
+        </div>
+
+        <div class="display">
+            <div id="expr-display"></div>
+            <div id="result-display">0</div>
+        </div>
+
+        <div class="keys-grid">
+            <!-- Row Scientific operations -->
+            <button class="key sci" onclick="inputSci('Math.sin')">sin</button>
+            <button class="key sci" onclick="inputSci('Math.cos')">cos</button>
+            <button class="key sci" onclick="inputSci('Math.tan')">tan</button>
+            <button class="key sci danger" onclick="clearAll()">AC</button>
+            <button class="key op danger" onclick="deleteLast()">⌫</button>
+            <button class="key op" onclick="inputOp('/')">÷</button>
+            <button class="key op" onclick="inputOp('*')">×</button>
+
+            <!-- Row 2 -->
+            <button class="key sci" onclick="inputSci('Math.asin')">sin⁻¹</button>
+            <button class="key sci" onclick="inputSci('Math.acos')">cos⁻¹</button>
+            <button class="key sci" onclick="inputSci('Math.atan')">tan⁻¹</button>
+            <button class="key num" onclick="inputNum('7')">7</button>
+            <button class="key num" onclick="inputNum('8')">8</button>
+            <button class="key num" onclick="inputNum('9')">9</button>
+            <button class="key op" onclick="inputOp('-')">−</button>
+
+            <!-- Row 3 -->
+            <button class="key sci" onclick="inputSci('Math.log10')">log</button>
+            <button class="key sci" onclick="inputSci('Math.log')">ln</button>
+            <button class="key sci" onclick="inputSci('Math.sqrt')">√</button>
+            <button class="key num" onclick="inputNum('4')">4</button>
+            <button class="key num" onclick="inputNum('5')">5</button>
+            <button class="key num" onclick="inputNum('6')">6</button>
+            <button class="key op" onclick="inputOp('+')">+</button>
+
+            <!-- Row 4 -->
+            <button class="key sci sci-hide-mobile" onclick="inputSci('Math.exp')">eˣ</button>
+            <button class="key sci" onclick="inputOp('**')">xʸ</button>
+            <button class="key sci" onclick="inputOp('**2')">x²</button>
+            <button class="key num" onclick="inputNum('1')">1</button>
+            <button class="key num" onclick="inputNum('2')">2</button>
+            <button class="key num" onclick="inputNum('3')">3</button>
+            <button class="key equal" style="grid-row: span 2; height: 100%;" onclick="calculate()">=</button>
+
+            <!-- Row 5 -->
+            <button class="key sci sci-hide-mobile" onclick="inputNum('Math.PI')">π</button>
+            <button class="key sci sci-hide-mobile" onclick="inputNum('Math.E')">e</button>
+            <button class="key sci" onclick="inputNum('(')">(</button>
+            <button class="key sci" onclick="inputNum(')')">)</button>
+            <button class="key num" onclick="inputNum('0')">0</button>
+            <button class="key num" onclick="inputNum('.')">.</button>
+            <!-- Equal button fills the row span here -->
+        </div>
+    </div>
+
+    <!-- SIDEBAR PANELS -->
+    <div class="sidebar-panels">
+        <!-- Science Constants Panel -->
+        <div class="panel">
+            <div class="panel-header">Science Constants (Click to Insert)</div>
+            <div class="panel-list">
+                <div class="const-item" onclick="insertConstant('299792458')">
+                    <span class="name">Speed of Light (c)</span> <span class="val">2.998e8</span>
+                </div>
+                <div class="const-item" onclick="insertConstant('6.62607e-34')">
+                    <span class="name">Planck's (h)</span> <span class="val">6.626e-34</span>
+                </div>
+                <div class="const-item" onclick="insertConstant('6.67430e-11')">
+                    <span class="name">Gravitation (G)</span> <span class="val">6.674e-11</span>
+                </div>
+                <div class="const-item" onclick="insertConstant('6.02214e23')">
+                    <span class="name">Avogadro (Nₐ)</span> <span class="val">6.022e23</span>
+                </div>
+                <div class="const-item" onclick="insertConstant('8.31446')">
+                    <span class="name">Gas Constant (R)</span> <span class="val">8.314</span>
+                </div>
+                <div class="const-item" onclick="insertConstant('1.60218e-19')">
+                    <span class="name">Electron Charge (e)</span> <span class="val">1.602e-19</span>
+                </div>
+                <div class="const-item" onclick="insertConstant('9.10938e-31')">
+                    <span class="name">Electron Mass (mₑ)</span> <span class="val">9.109e-31</span>
+                </div>
+                <div class="const-item" onclick="insertConstant('1.38065e-23')">
+                    <span class="name">Boltzmann (k)</span> <span class="val">1.381e-23</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Panel -->
+        <div class="panel">
+            <div class="panel-header">Calculation History <span style="cursor:pointer;color:red;font-size:0.8rem" onclick="clearHistory()">Clear</span></div>
+            <div class="panel-list" id="history-list">
+                <div style="color:var(--text-muted); text-align:center; margin-top:1rem;">No history yet</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // State Variables
+    let currentInput = "0";
+    let expression = "";
+    let isDegreeMode = true;
+    let shouldResetInput = false;
+    const history = JSON.parse(localStorage.getItem('apex_calc_history')) || [];
+
+    const displayExpr = document.getElementById('expr-display');
+    const displayRes = document.getElementById('result-display');
+    const historyList = document.getElementById('history-list');
+
+    window.onload = function() {
+        updateHistoryUI();
+        setupKeyboardListeners();
+    };
+
+    function toggleTheme() {
+        const body = document.documentElement;
+        if (body.getAttribute('data-theme') === 'light') {
+            body.setAttribute('data-theme', 'dark');
+        } else {
+            body.setAttribute('data-theme', 'light');
+        }
+    }
+
+    function setAngleMode(mode) {
+        isDegreeMode = (mode === 'deg');
+        document.getElementById('mode-deg').classList.toggle('active', isDegreeMode);
+        document.getElementById('mode-rad').classList.toggle('active', !isDegreeMode);
+    }
+
+    // Custom Trig wrappers to respect DEG/RAD mode
+    const DegToRad = (val) => val * (Math.PI / 180);
+    const RadToDeg = (val) => val * (180 / Math.PI);
+
+    function customSin(x) { return isDegreeMode ? Math.sin(DegToRad(x)) : Math.sin(x); }
+    function customCos(x) { return isDegreeMode ? Math.cos(DegToRad(x)) : Math.cos(x); }
+    function customTan(x) { return isDegreeMode ? Math.tan(DegToRad(x)) : Math.tan(x); }
+    function customAsin(x) { let res = Math.asin(x); return isDegreeMode ? RadToDeg(res) : res; }
+    function customAcos(x) { let res = Math.acos(x); return isDegreeMode ? RadToDeg(res) : res; }
+    function customAtan(x) { let res = Math.atan(x); return isDegreeMode ? RadToDeg(res) : res; }
+
+
+    function updateDisplay() {
+        // Visual text replacements for user comprehension
+        let viewExpr = expression
+            .replace(/Math.sin/g, 'sin')
+            .replace(/Math.cos/g, 'cos')
+            .replace(/Math.tan/g, 'tan')
+            .replace(/Math.asin/g, 'asin')
+            .replace(/Math.acos/g, 'acos')
+            .replace(/Math.atan/g, 'atan')
+            .replace(/Math.sqrt/g, '√')
+            .replace(/Math.log10/g, 'log')
+            .replace(/Math.log/g, 'ln')
+            .replace(/Math.PI/g, 'π')
+            .replace(/Math.E/g, 'e')
+            .replace(/\*\*/g, '^')
+            .replace(/\*/g, '×')
+            .replace(/\//g, '÷');
+
+        displayExpr.innerText = viewExpr;
+        displayRes.innerText = currentInput;
+    }
+
+    function inputNum(num) {
+        if (currentInput === "0" || shouldResetInput) {
+            currentInput = num;
+            shouldResetInput = false;
+        } else {
+            currentInput += num;
+        }
+        updateDisplay();
+    }
+
+    function inputOp(op) {
+        if (shouldResetInput) shouldResetInput = false;
+
+        if (currentInput !== "0" && currentInput !== "") {
+            expression += currentInput + op;
+            currentInput = "";
+        } else if (expression !== "") {
+            // Replace last operator if clicked twice
+            let lastChar = expression.slice(-1);
+            if (['+', '-', '*', '/'].includes(lastChar)) {
+                expression = expression.slice(0, -1) + op;
+            } else {
+                expression += op;
+            }
+        }
+        updateDisplay();
+    }
+
+    function inputSci(func) {
+        if (shouldResetInput) {
+            expression = "";
+            shouldResetInput = false;
+        }
+        expression += func + "(";
+        currentInput = "";
+        updateDisplay();
+    }
+
+    function insertConstant(val) {
+        if (shouldResetInput) {
+            currentInput = val;
+            shouldResetInput = false;
+        } else if (currentInput === "0" || currentInput === "") {
+            currentInput = val;
+        } else {
+            currentInput += val;
+        }
+        updateDisplay();
+    }
+
+    function deleteLast() {
+        if (currentInput.length > 0 && currentInput !== "0") {
+            currentInput = currentInput.slice(0, -1);
+            if (currentInput === "") currentInput = "0";
+        } else if (expression.length > 0) {
+            expression = expression.slice(0, -1);
+        }
+        updateDisplay();
+    }
+
+    function clearAll() {
+        currentInput = "0";
+        expression = "";
+        shouldResetInput = false;
+        updateDisplay();
+    }
+
+    function calculate() {
+        let finalExpression = expression + currentInput;
+        
+        if (finalExpression === "" || finalExpression === "0") return;
+
+        // Auto close parentheses
+        const openBrackets = (finalExpression.match(/\(/g) || []).length;
+        const closeBrackets = (finalExpression.match(/\)/g) || []).length;
+        if (openBrackets > closeBrackets) {
+            finalExpression += ")".repeat(openBrackets - closeBrackets);
+        }
+
+        let runExpr = finalExpression
+            .replace(/Math.sin/g, 'customSin')
+            .replace(/Math.cos/g, 'customCos')
+            .replace(/Math.tan/g, 'customTan')
+            .replace(/Math.asin/g, 'customAsin')
+            .replace(/Math.acos/g, 'customAcos')
+            .replace(/Math.atan/g, 'customAtan');
+
+        try {
+            // Evaluates mathematical string safely locally
+            let result = eval(runExpr);
+
+            // Format float precision errors (e.g., 0.1 + 0.2)
+            if (result % 1 !== 0) {
+                result = parseFloat(result.toFixed(10));
+            }
+
+            // Save History
+            history.unshift({ expr: finalExpression, res: result });
+            if (history.length > 30) history.pop(); // Cap history length
+            localStorage.setItem('apex_calc_history', JSON.stringify(history));
+            updateHistoryUI();
+
+            currentInput = result.toString();
+            expression = "";
+            shouldResetInput = true;
+            updateDisplay();
+
+        } catch (error) {
+            displayRes.innerText = "Error";
+            shouldResetInput = true;
+            expression = "";
+            currentInput = "0";
+        }
+    }
+
+    // History Logic
+    function updateHistoryUI() {
+        if (history.length === 0) {
+            historyList.innerHTML = `<div style="color:var(--text-muted); text-align:center; margin-top:1rem;">No history yet</div>`;
+            return;
+        }
+
+        historyList.innerHTML = '';
+        history.forEach((item, index) => {
+            let readableExpr = item.expr
+                .replace(/Math.sin/g, 'sin')
+                .replace(/Math.cos/g, 'cos')
+                .replace(/Math.tan/g, 'tan')
+                .replace(/Math.PI/g, 'π')
+                .replace(/\*\*/g, '^')
+                .replace(/\*/g, '×')
+                .replace(/\//g, '÷');
+
+            let div = document.createElement('div');
+            div.className = 'history-item';
+            div.onclick = () => {
+                currentInput = item.res.toString();
+                shouldResetInput = false;
+                updateDisplay();
+            };
+            div.innerHTML = `
+                <div class="history-expr">${readableExpr} =</div>
+                <div class="history-res">${item.res}</div>
+            `;
+            historyList.appendChild(div);
+        });
+    }
+
+    function clearHistory() {
+        history.length = 0;
+        localStorage.removeItem('apex_calc_history');
+        updateHistoryUI();
+    }
+
+    // Keyboard Shortcuts Support
+    function setupKeyboardListeners() {
+        document.addEventListener('keydown', (e) => {
+            if (e.key >= '0' && e.key <= '9') inputNum(e.key);
+            if (e.key === '.') inputNum('.');
+            if (e.key === '+') inputOp('+');
+            if (e.key === '-') inputOp('-');
+            if (e.key === '*') inputOp('*');
+            if (e.key === '/') inputOp('/');
+            if (e.key === '(') inputNum('(');
+            if (e.key === ')') inputNum(')');
+            if (e.key === '^') inputOp('**');
+            if (e.key === 'Enter' || e.key === '=') calculate();
+            if (e.key === 'Backspace') deleteLast();
+            if (e.key === 'Escape') clearAll();
+        });
+    }
+</script>
+</body>
+</html>
