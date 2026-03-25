@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Team Q0</title>
+
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+        background: radial-gradient(circle at center, #020111 0%, #000000 100%);
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        perspective: 1000px;
+    }
+
+    body::before {
+        content: "";
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        background: transparent;
+        background-image: radial-gradient(white 1px, transparent 1px);
+        background-size: 50px 50px;
+        animation: moveStars 60s linear infinite;
+        opacity: 0.4;
+    }
+
+    @keyframes moveStars {
+        from { transform: translate(0, 0); }
+        to { transform: translate(-500px, -500px); }
+    }
+
+    .container {
+        width: 300px;
+        height: 300px;
+        transform-style: preserve-3d;
+    }
+
+    .image {
+        width: 100%;
+        height: 100%;
+        border-radius: 20px;
+        background-image: url('https://raw.githubusercontent.com/epickfr/LUNAFLIX/refs/heads/main/copy_3FB4DA31-B28D-4B3A-BA1B-37BFED46B52C.gif');
+        background-size: cover;
+        background-position: center;
+        box-shadow: 0 0 40px rgba(255,255,255,0.2);
+        transition: transform 0.1s ease-out;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="image" id="img"></div>
+</div>
+
+<script>
+    const img = document.getElementById("img");
+
+    document.addEventListener("mousemove", (e) => {
+        const x = (window.innerWidth / 2 - e.clientX) / 20;
+        const y = (window.innerHeight / 2 - e.clientY) / 20;
+
+        img.style.transform = `
+            rotateY(${x}deg)
+            rotateX(${y}deg)
+            scale(1.05)
+        `;
+    });
+
+    document.addEventListener("mouseleave", () => {
+        img.style.transform = "rotateX(0deg) rotateY(0deg)";
+    });
+</script>
+
+</body>
+</html>
