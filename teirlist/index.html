@@ -57,9 +57,9 @@
       box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
       white-space: nowrap;
     }
-    /* Popular Tier Colors */
     .s-tier .tier-header { background: #ffd700; color: #000; }
     .a-tier .tier-header { background: #ff8800; }
+    .aus-tier .tier-header { background: #F6FF68; }
     .b-tier .tier-header { background: #00aa44; }
     .c-tier .tier-header { background: #4488ff; }
     .d-tier .tier-header { background: #aa44ff; }
@@ -68,7 +68,12 @@
 <body>
   <div class="container">
     <h1>My Tier List</h1>
+    <div class="tier aus-tier">
+      <div class="tier-header">Austin Tier</div>
+      <div id="Aus-content" class="tier-content"></div>
+    </div>
 
+    
     <!-- S Tier -->
     <div class="tier s-tier">
       <div class="tier-header">S Tier</div>
@@ -101,14 +106,12 @@
   </div>
 
   <script>
-    // ========================
-    // EDIT NAMES HERE
-    // Add as many names as you want to each tier array
-    // ========================
 
     const tierData = {
+      Aus:[
+        "Austin S"
+      ]
       S: [
-        // Add S tier names here, one per line
         "Patrick F",
         "Patrick F",
         "@chearly_cheese",
@@ -146,7 +149,6 @@
         "Olivia B"
       ],
       A: [
-        // Add A tier names here
         "Kris G",
         "Nathan E",
         "Issabella F",
@@ -180,7 +182,6 @@
       ]
     };
 
-    // Render function
     function renderTier(tierKey) {
       const container = document.getElementById(tierKey.toLowerCase() + '-content');
       container.innerHTML = '';
@@ -193,12 +194,10 @@
       });
     }
 
-    // Render all tiers on load
-    ['S', 'A', 'B', 'C', 'D'].forEach(key => {
+    ['S', 'A', 'B', 'C', 'D', 'Aus'].forEach(key => {
       renderTier(key);
     });
 
-    console.log("Tier list loaded. Edit the tierData object in the script to add your names.");
   </script>
 </body>
 </html>
