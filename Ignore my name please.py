@@ -132,7 +132,7 @@ def show_menu():
         print()
         print(Fore.CYAN + "=== StudentKeeper Killer ===" + Style.RESET_ALL)
         print("1. Scan only (dry run) — no process termination")
-        print("2. Enable monitoring with confirmation required (manual trigger via --confirm)")
+        print("2. Enable killing")
         print("3. Show target processes")
         print("4. Exit")
         choice = input(Fore.YELLOW + "Choose an option: " + Style.RESET_ALL).strip()
