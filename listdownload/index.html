@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blocked Words Extractor (Legacy UI)</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f0f0; padding: 50px; }
+        .box { 
+            background: #fff; 
+            border: 1px solid #ccc; 
+            padding: 20px; 
+            width: 400px; 
+            margin: 0 auto; 
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1); 
+            text-align: center;
+        }
+        h2 { font-size: 18px; margin-top: 0; color: #333; }
+        #status { font-weight: bold; color: #0000FF; margin: 15px 0; }
+        .footer { font-size: 11px; color: #666; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>Blocked Words Extractor</h2>
+    <hr>
+    <div id="status">Status: Initializing...</div>
+    <p>Please wait. Your file <b>list.txt</b> will download automatically once the data is processed.</p>
+    <hr>
+    <div class="footer">Version 1.0</div>
+</div>
+
+<script>
+    async function processWords() {
+        const url = 'https://raw.githubusercontent.com/epickfr/LUNAFLIX/refs/heads/main/blockedwordsonstudenkeeper/index.html';
+        const statusDiv = document.getElementById('status');
+
+        try {
+            statusDiv.innerText = "Status: Fetching Data...";
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Fetch failed');
+            const html = await response.text();
+
+            statusDiv.innerText = "Status: Filtering Words...";
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            let rawList = [];
+            const aceElements = doc.querySelectorAll('.ace_string');
+            
+            if (aceElements.length > 0) {
+                aceElements.forEach(el => {
+                    let w = el.textContent.replace(/^["']|["']$/g, '').trim();
+                    if (w) rawList.push(w);
+                });
+            } else {
+                const matches = html.match(/"([^"\\]+)"/g);
+                if (matches) rawList = matches.map(s => s.replace(/"/g, '').trim());
+            }
+
+            const cleanList = [...new Set(rawList)]
+                .map(w => w.toLowerCase())
+                .filter(w => {
+                    return w.length > 2 && 
+                           !w.includes('ace_') && 
+                           !w.match(/^[0-9]+px$/) &&
+                           !['true', 'false', 'null', 'html', 'head', 'body', 'script', 'style'].includes(w);
+                })
+                .sort();
+
+            const blob = new Blob([cleanList.join('\n')], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'list.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            statusDiv.innerText = "Status: Downloaded Successfully!";
+            statusDiv.style.color = "#008000";
+
+        } catch (e) {
+            statusDiv.innerText = "Status: Error occurred.";
+            statusDiv.style.color = "#FF0000";
+            console.error(e);
+        }
+    }
+
+    window.onload = processWords;
+</script>
+
+</body>
+</html>
