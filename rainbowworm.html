@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STREAM - WORM ZONE</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #0f0;
+            font-family: "Courier New", Courier, monospace;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            cursor: none;
+        }
+
+        #worm-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .worm-segment {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #ff00ff;
+            border-radius: 50%;
+            pointer-events: none;
+            box-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
+            z-index: 100;
+        }
+
+        .worm-head {
+            background: #fff;
+            width: 25px;
+            height: 25px;
+            z-index: 101;
+        }
+
+
+        .ui-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        h1 {
+            font-size: 3rem;
+            text-shadow: 3px 3px #f0f;
+            margin: 0;
+        }
+
+        marquee {
+            width: 300px;
+            background: #00f;
+            color: #fff;
+            padding: 5px;
+            border: 2px ridge #ccc;
+        }
+
+        .hint {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            color: #555;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ui-overlay">
+
+    </div>
+
+    <div id="worm-container"></div>
+
+    <script>
+        const container = document.getElementById('worm-container');
+        const numSegments = 30;
+        const segments = [];
+        const mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+        
+        for (let i = 0; i < numSegments; i++) {
+            const seg = document.createElement('div');
+            seg.className = 'worm-segment' + (i === 0 ? ' worm-head' : '');
+            
+            if (i === 0) {
+			
+            }
+            
+            container.appendChild(seg);
+            segments.push({
+                el: seg,
+                x: mouse.x,
+                y: mouse.y,
+                angle: 0
+            });
+        }
+
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+
+        function update() {
+            let targetX = mouse.x;
+            let targetY = mouse.y;
+
+            segments.forEach((seg, index) => {
+                const dx = targetX - seg.x;
+                const dy = targetY - seg.y;
+                
+                seg.x += dx * 0.2;
+                seg.y += dy * 0.2;
+
+                seg.el.style.transform = `translate(${seg.x}px, ${seg.y}px)`;
+                
+                const hue = (Date.now() * 0.1 + index * 10) % 360;
+                seg.el.style.background = `hsl(${hue}, 100%, 50%)`;
+                seg.el.style.boxShadow = `0 0 15px hsl(${hue}, 100%, 50%)`;
+
+                targetX = seg.x;
+                targetY = seg.y;
+            });
+
+            requestAnimationFrame(update);
+        }
+
+        update();
+
+        window.addEventListener('touchmove', (e) => {
+            mouse.x = e.touches[0].clientX;
+            mouse.y = e.touches[0].clientY;
+            e.preventDefault();
+        }, { passive: false });
+
+    </script>
+</body>
+</html>
