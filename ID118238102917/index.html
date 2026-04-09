@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Plants vs Zombies</title>
+  <!-- Yandex Games SDK -->
+  <script src="/sdk.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    canvas:focus { outline: none; }
+
+    html, body {
+      padding: 0;
+      margin: 0;
+      overflow: hidden;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: rgba(0,0,0,0);
+      height: 100%;
+      width: 100%;
+      background: #0a1a0f;
+    }
+
+    /* ── CANVAS ── */
+    #unity-container {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    #unity-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* ── LOADING COVER ── */
+    #loading-cover {
+      position: fixed;
+      inset: 0;
+      background: url('background.jpg') center center / cover no-repeat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+
+    #loading-cover.fade-out {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    /* dark overlay so text is always readable */
+    #loading-cover::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        160deg,
+        rgba(4, 30, 8, 0.82) 0%,
+        rgba(10, 40, 15, 0.75) 50%,
+        rgba(4, 25, 10, 0.88) 100%
+      );
+    }
+
+    /* floating leaf particles */
+    .leaf {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 80% 0 80% 0;
+      opacity: 0;
+      animation: floatLeaf linear infinite;
+    }
+    .leaf:nth-child(1)  { left: 8%;  background:#4caf50; animation-duration:9s;  animation-delay:0s;   width:10px; height:10px; }
+    .leaf:nth-child(2)  { left: 20%; background:#81c784; animation-duration:12s; animation-delay:1.5s; width:16px; height:16px; }
+    .leaf:nth-child(3)  { left: 35%; background:#388e3c; animation-duration:8s;  animation-delay:3s;   width:12px; height:12px; }
+    .leaf:nth-child(4)  { left: 55%; background:#66bb6a; animation-duration:11s; animation-delay:0.5s; }
+    .leaf:nth-child(5)  { left: 70%; background:#a5d6a7; animation-duration:10s; animation-delay:2s;   width:9px;  height:9px; }
+    .leaf:nth-child(6)  { left: 85%; background:#43a047; animation-duration:13s; animation-delay:4s;   width:18px; height:18px; }
+    .leaf:nth-child(7)  { left: 45%; background:#1b5e20; animation-duration:7s;  animation-delay:1s;   width:11px; height:11px; }
+    .leaf:nth-child(8)  { left: 92%; background:#69f0ae; animation-duration:14s; animation-delay:2.5s; width:8px;  height:8px; }
+
+    @keyframes floatLeaf {
+      0%   { transform: translateY(110vh) rotate(0deg);   opacity: 0; }
+      10%  { opacity: 0.7; }
+      90%  { opacity: 0.4; }
+      100% { transform: translateY(-10vh) rotate(540deg); opacity: 0; }
+    }
+
+    /* ── LOADER PANEL ── */
+    #unity-loading-bar {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      padding: 40px 50px 36px;
+      background: rgba(5, 20, 8, 0.72);
+      border: 1px solid rgba(100, 220, 100, 0.18);
+      border-radius: 24px;
+      backdrop-filter: blur(18px);
+      box-shadow:
+        0 0 60px rgba(76, 175, 80, 0.12),
+        0 24px 64px rgba(0,0,0,0.6),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+      min-width: 320px;
+      max-width: 420px;
+      animation: panelIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+
+    @keyframes panelIn {
+      from { opacity: 0; transform: translateY(30px) scale(0.95); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* logo */
+    #unity-logo {
+      animation: logoBob 3s ease-in-out infinite;
+    }
+    @keyframes logoBob {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-6px); }
+    }
+    #unity-logo img {
+      max-width: 220px;
+      height: auto;
+      filter: drop-shadow(0 4px 20px rgba(76,175,80,0.4));
+    }
+
+    /* tip text */
+    #loading-tip {
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(180, 240, 180, 0.7);
+      text-align: center;
+      letter-spacing: 0.04em;
+      max-width: 280px;
+      line-height: 1.5;
+      min-height: 40px;
+      transition: opacity 0.4s;
+    }
+
+    /* status label */
+    #loading-status {
+      font-family: 'Fredoka One', cursive;
+      font-size: 15px;
+      color: #a5d6a7;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* progress bar */
+    #unity-progress-bar-empty {
+      width: 100%;
+      height: 10px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 99px;
+      overflow: hidden;
+      border: 1px solid rgba(100,220,100,0.12);
+    }
+    #unity-progress-bar-full {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #2e7d32, #66bb6a, #a5d6a7);
+      border-radius: 99px;
+      transition: width 0.35s ease;
+      position: relative;
+      box-shadow: 0 0 14px rgba(102,187,106,0.7);
+    }
+    #unity-progress-bar-full::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
+      width: 30px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35));
+      border-radius: 0 99px 99px 0;
+      animation: shimmer 1s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0%,100% { opacity: 0.5; }
+      50%      { opacity: 1; }
+    }
+
+    /* percent label */
+    #progress-percent {
+      font-family: 'Fredoka One', cursive;
+      font-size: 28px;
+      color: #81c784;
+      letter-spacing: -0.01em;
+      text-shadow: 0 0 20px rgba(102,187,106,0.5);
+    }
+
+    /* spinner (shown before progress bar appears) */
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 3px solid rgba(100,220,100,0.15);
+      border-top-color: #66bb6a;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── FULLSCREEN BUTTON ── */
+    #fullscreen-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 200;
+      background: rgba(5, 30, 10, 0.8);
+      border: 1px solid rgba(100,220,100,0.3);
+      border-radius: 10px;
+      padding: 8px 10px;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: background 0.2s, transform 0.15s;
+      display: none;
+    }
+    #fullscreen-btn:hover {
+      background: rgba(46, 125, 50, 0.6);
+      transform: scale(1.08);
+    }
+    #fullscreen-btn svg { display: block; }
+
+    /* ── MUTE BUTTON ── */
+    #mute-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 68px;
+      z-index: 200;
+      background: rgba(5, 30, 10, 0.8);
+      border: 1px solid rgba(100,220,100,0.3);
+      border-radius: 10px;
+      padding: 8px 10px;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: background 0.2s, transform 0.15s;
+      display: none;
+    }
+    #mute-btn:hover {
+      background: rgba(46, 125, 50, 0.6);
+      transform: scale(1.08);
+    }
+
+    /* ── ERROR OVERLAY ── */
+    #error-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: rgba(0,0,0,0.88);
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+      font-family: 'Nunito', sans-serif;
+      color: #ef9a9a;
+    }
+    #error-overlay.visible { display: flex; }
+    #error-overlay h2 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 28px;
+      color: #ef5350;
+      margin: 0;
+    }
+    #error-overlay p { margin: 0; font-size: 14px; color: #ffcdd2; text-align: center; max-width: 320px; }
+    #error-overlay button {
+      margin-top: 8px;
+      padding: 10px 28px;
+      background: #c62828;
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-family: 'Fredoka One', cursive;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #error-overlay button:hover { background: #e53935; }
+
+    /* mobile tweaks */
+    @media (max-width: 480px) {
+      #unity-loading-bar { padding: 28px 24px 24px; min-width: 280px; }
+      #unity-logo img { max-width: 160px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Game canvas -->
+  <div id="unity-container" class="unity-desktop">
+    <canvas id="unity-canvas" tabindex="-1"></canvas>
+  </div>
+
+  <!-- Loading screen -->
+  <div id="loading-cover">
+    <!-- Floating leaves -->
+    <div class="leaf"></div><div class="leaf"></div><div class="leaf"></div>
+    <div class="leaf"></div><div class="leaf"></div><div class="leaf"></div>
+    <div class="leaf"></div><div class="leaf"></div>
+
+    <div id="unity-loading-bar">
+      <div id="unity-logo"><img src="logo.webp" alt="Plants vs Zombies"></div>
+
+      <div class="spinner" id="spinner"></div>
+
+      <div id="progress-percent" style="display:none;">0%</div>
+
+      <div id="unity-progress-bar-empty" style="display:none;">
+        <div id="unity-progress-bar-full"></div>
+      </div>
+
+      <div id="loading-status">Loading…</div>
+
+      <div id="loading-tip">YOU WONT LAST 5 MINS PLAYING THIS GAME!</div>
+    </div>
+  </div>
+
+  <!-- Fullscreen button (shown after game loads) -->
+  <button id="fullscreen-btn" title="Toggle Fullscreen">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#81c784" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/>
+    </svg>
+  </button>
+
+  <!-- Mute button -->
+  <button id="mute-btn" title="Toggle Mute">
+    <svg id="mute-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#81c784" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+    </svg>
+  </button>
+
+  <!-- Error overlay -->
+  <div id="error-overlay">
+    <h2>⚠️ Load Failed</h2>
+    <p id="error-msg">Something went wrong loading the game. Please check your connection and try again.</p>
+    <button onclick="location.reload()">Retry</button>
+  </div>
+
+<script>
+  // ── TIPS ──────────────────────────────────────────────────────────────────
+  const tips = [
+    "Sunflowers produce sun faster when planted in groups!",
+    "Cherry Bombs deal massive area damage — save them for big waves!",
+    "Wall-nuts can buy crucial time against tough zombies.",
+    "Ice Shrooms freeze all zombies on screen instantly.",
+    "Snow Peas slow zombies AND deal damage simultaneously.",
+    "Tall-nuts block pole-vaulting and jumping zombies.",
+    "Puff-shrooms are free plants — great for emergency defense!",
+    "Garlic redirects zombies to a different lane.",
+    "Twin Sunflowers generate double sun output.",
+    "Torchwood turns frozen peas into fireballs!",
+  ];
+  let tipIndex = 0;
+  const tipEl = document.getElementById('loading-tip');
+  setInterval(() => {
+    tipEl.style.opacity = 0;
+    setTimeout(() => {
+      tipIndex = (tipIndex + 1) % tips.length;
+      tipEl.textContent = tips[tipIndex];
+      tipEl.style.opacity = 1;
+    }, 400);
+  }, 4000);
+
+  // ── CONFIG ────────────────────────────────────────────────────────────────
+  const hideFullScreenButton = "";
+  const buildUrl   = "Build";
+  const loaderUrl  = buildUrl + "/cheatsMOD.loader.js";
+  const config = {
+    dataUrl:              buildUrl + "/cheatsMOD.data.unityweb",
+    frameworkUrl:         buildUrl + "/cheatsMOD.framework.js.unityweb?=v2",
+    codeUrl:              buildUrl + "/cheatsMOD.wasm.unityweb",
+    streamingAssetsUrl:   "StreamingAssets",
+    companyName:          "DefaultCompany",
+    productName:          "Plants Vs Zombies",
+    productVersion:       "1.0",
+  };
+
+  const container        = document.querySelector("#unity-container");
+  const canvas           = document.querySelector("#unity-canvas");
+  const loadingCover     = document.querySelector("#loading-cover");
+  const progressBarEmpty = document.querySelector("#unity-progress-bar-empty");
+  const progressBarFull  = document.querySelector("#unity-progress-bar-full");
+  const spinner          = document.querySelector('#spinner');
+  const percentLabel     = document.querySelector('#progress-percent');
+  const statusLabel      = document.querySelector('#loading-status');
+  const fullscreenBtn    = document.querySelector('#fullscreen-btn');
+  const muteBtn          = document.querySelector('#mute-btn');
+  const errorOverlay     = document.querySelector('#error-overlay');
+  const errorMsg         = document.querySelector('#error-msg');
+
+  // ── FULLSCREEN ────────────────────────────────────────────────────────────
+  const canFullscreen = ['exitFullscreen','webkitExitFullscreen','webkitCancelFullScreen','mozCancelFullScreen','msExitFullscreen']
+    .some(k => k in document);
+
+  if (canFullscreen && hideFullScreenButton !== "true") {
+    fullscreenBtn.style.display = 'none'; // shown after load
+    fullscreenBtn.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen?.() || document.documentElement.webkitRequestFullscreen?.();
+      } else {
+        document.exitFullscreen?.() || document.webkitExitFullscreen?.();
+      }
+    });
+  }
+
+  // ── MUTE ──────────────────────────────────────────────────────────────────
+  let muted = false;
+  const muteIconEl = document.getElementById('mute-icon');
+  const mutedPath = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>`;
+  const unmutedPath = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>`;
+
+  muteBtn.addEventListener('click', () => {
+    muted = !muted;
+    muteIconEl.innerHTML = muted ? mutedPath : unmutedPath;
+    document.querySelectorAll('audio, video').forEach(el => el.muted = muted);
+    if (myGameInstance) {
+      myGameInstance.SendMessage('YandexGame', muted ? 'MuteGame' : 'UnmuteGame');
+    }
+  });
+
+  // ── MOBILE ────────────────────────────────────────────────────────────────
+  if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+    container.className = "unity-mobile";
+  }
+
+  loadingCover.style.background = "url('background.jpg') center / cover";
+
+  document.addEventListener('contextmenu', e => e.preventDefault());
+
+  function FocusGame() { window.focus(); canvas.focus(); }
+  window.addEventListener('pointerdown', FocusGame);
+  window.addEventListener('touchstart', FocusGame);
+
+  document.addEventListener('visibilitychange', () => {
+    if (ysdk !== null && initGame) {
+      if (document.hidden) {
+        myGameInstance.SendMessage('YandexGame', 'OnVisibilityGameWindow', 'false');
+      } else {
+        myGameInstance.SendMessage('YandexGame', 'OnVisibilityGameWindow', 'true');
+        if ((ysdk.deviceInfo.isMobile() || ysdk.deviceInfo.isTablet()) &&
+            ysdk.screen.fullscreen.status === 'off') {
+          ysdk.screen.fullscreen.request();
+        }
+      }
+    }
+  });
+
+  function ResumeGame() {
+    if (myGameInstance?.Module) myGameInstance.Module.resumeMainLoop();
+    document.querySelectorAll('audio, video').forEach(el => el.muted = false);
+  }
+
+  // ── STATE ─────────────────────────────────────────────────────────────────
+  let StartUnityInstance;
+  let myGameInstance = null;
+  let ysdk      = null;
+  let player    = null;
+  let payments  = null;
+  let initGame  = false;
+  let nowFullAdOpen = false;
+
+  // ── LOADER SCRIPT ─────────────────────────────────────────────────────────
+  const script = document.createElement("script");
+  script.src = loaderUrl;
+  script.onload = () => {
+    StartUnityInstance = function () {
+      createUnityInstance(canvas, config, (progress) => {
+        const pct = Math.round(progress * 100);
+        // Switch spinner → bar at first progress tick
+        if (spinner.style.display !== 'none') {
+          spinner.style.display = 'none';
+          progressBarEmpty.style.display = '';
+          percentLabel.style.display = '';
+          statusLabel.textContent = 'Loading…';
+        }
+        progressBarFull.style.width = `${100 * progress}%`;
+        percentLabel.textContent = `${pct}%`;
+        if (pct >= 100) statusLabel.textContent = 'Starting…';
+      }).then((unityInstance) => {
+        myGameInstance = unityInstance;
+        // Smooth fade-out
+        loadingCover.classList.add('fade-out');
+        setTimeout(() => loadingCover.style.display = 'none', 650);
+        if (canFullscreen && hideFullScreenButton !== "true") fullscreenBtn.style.display = '';
+        muteBtn.style.display = '';
+      }).catch((message) => {
+        console.error(message);
+        errorMsg.textContent = message || "An unknown error occurred.";
+        errorOverlay.classList.add('visible');
+      });
+    };
+    if (LocalHost()) StartUnityInstance_IfUnloaded();
+  };
+  script.onerror = () => {
+    errorMsg.textContent = "Could not load game engine. Check your connection.";
+    errorOverlay.classList.add('visible');
+  };
+
+  function StartUnityInstance_IfUnloaded() {
+    if (spinner.style.display !== 'none' || progressBarEmpty.style.display === 'none') {
+      StartUnityInstance();
+    }
+  }
+  function LocalHost() { return true; }
+
+  // ── YANDEX SDK ────────────────────────────────────────────────────────────
+  InitYSDK();
+  async function InitYSDK() {
+    try {
+      if (LocalHost()) return;
+      console.log('Init Yandex SDK');
+      ysdk = await YaGames.init();
+      FullAdShow();
+      cloudSaves   = await LoadCloud();       console.log('Init Storage ysdk');
+      paymentsData = await GetPayments();     console.log('Init Payments ysdk');
+      InitLeaderboards();                     console.log('Init Leaderboards');
+      environmentData = await RequestingEnvironmentData(); console.log('Init Envir ysdk');
+      playerData   = await InitPlayer();      console.log('Init Player ysdk');
+      flasgsData   = await GetFlags();        console.log('Init Flags ysdk');
+    } catch (e) {
+      console.error('CRASH Initialization SDK: ', e);
+    }
+    StartUnityInstance_IfUnloaded();
+  }
+
+  function InitGame() {
+    console.log('Init Game Success');
+    initGame = true;
+    if (nowFullAdOpen && myGameInstance) {
+      myGameInstance.SendMessage('YandexGame', 'OpenFullAd');
+    }
+  }
+
+  function FullAdShow() {
+    try {
+      if (!nowFullAdOpen && ysdk) {
+        ysdk.adv.showFullscreenAdv({ callbacks: {
+          onOpen: () => {
+            nowFullAdOpen = true;
+            if (initGame) myGameInstance.SendMessage('YandexGame', 'OpenFullAd');
+          },
+          onClose: (wasShown) => {
+            nowFullAdOpen = false;
+            if (initGame) myGameInstance.SendMessage('YandexGame', 'CloseFullAd', wasShown ? 'true' : 'false');
+            FocusGame();
+          },
+          onError: (error) => {
+            console.error('Error Ad Interstitial', error);
+            myGameInstance.SendMessage('YandexGame', 'ErrorFullAd');
+            FocusGame();
+          },
+        }});
+      }
+    } catch(e) { console.error('CRASH FullAd Show:', e.message); }
+  }
+
+  function RewardedShow(id) {
+    try {
+      ysdk.adv.showRewardedVideo({ callbacks: {
+        onOpen:     () => { myGameInstance.SendMessage('YandexGame', 'OpenVideo'); },
+        onClose:    () => { myGameInstance.SendMessage('YandexGame', 'CloseVideo'); FocusGame(); },
+        onRewarded: () => { myGameInstance.SendMessage('YandexGame', 'RewardVideo', id); },
+        onError: (e) => { console.error('Error Video Ad', e); myGameInstance.SendMessage('YandexGame', 'ErrorVideo'); },
+      }});
+    } catch(err) { console.error('CRASH Rewarded Video Ad:', err.message); }
+  }
+
+  function StickyAdActivity(show) {
+    try {
+      ysdk.adv.getBannerAdvStatus().then(({ stickyAdvIsShowing, reason }) => {
+        if (stickyAdvIsShowing) { if (!show) ysdk.adv.hideBannerAdv(); }
+        else if (reason) console.log('Sticky ad hidden. Reason:', reason);
+        else if (show) ysdk.adv.showBannerAdv();
+      });
+    } catch(e) { console.error('CRASH Sticky Activity:', e.message); }
+  }
+
+  function Review() {
+    try {
+      ysdk.feedback.canReview().then(({ value, reason }) => {
+        if (value) {
+          ysdk.feedback.requestReview().then(({ feedbackSent }) => {
+            myGameInstance.SendMessage('YandexGame', 'ReviewSent', feedbackSent ? 'true' : 'false');
+            FocusGame();
+          });
+        } else { console.log('Review can show = false', reason); FocusGame(); }
+      });
+    } catch(e) { console.error('CRASH Review:', e.message); FocusGame(); }
+  }
+
+  function PromptShow() {
+    try {
+      ysdk.shortcut.showPrompt().then(result => {
+        myGameInstance.SendMessage('YandexGame', result.outcome === 'accepted' ? 'OnPromptSuccess' : 'OnPromptFail');
+        FocusGame();
+      });
+    } catch(e) { console.error('CRASH Prompt Show:', e.message); FocusGame(); }
+  }
+
+  // ── CLOUD SAVES ───────────────────────────────────────────────────────────
+  var cloudSaves = 'noData';
+  function SaveCloud(jsonData, flush) {
+    if (!player) { console.error('CRASH Save Cloud: player not ready'); return; }
+    try { player.setData({ saves: [jsonData] }, flush); }
+    catch(e) { console.error('CRASH Save Cloud:', e.message); }
+  }
+  function LoadCloud(sendback) {
+    return new Promise(resolve => {
+      if (!ysdk) { if (sendback) myGameInstance.SendMessage('YandexGame','SetLoadSaves','noData'); resolve('noData'); return; }
+      try {
+        ysdk.getPlayer({ scopes: false }).then(_player => {
+          _player.getData(["saves"]).then(data => {
+            const val = data.saves ? JSON.stringify(data.saves) : 'noData';
+            if (sendback) myGameInstance.SendMessage('YandexGame','SetLoadSaves', val);
+            resolve(val);
+          }).catch(() => { if (sendback) myGameInstance.SendMessage('YandexGame','SetLoadSaves','noData'); resolve('noData'); });
+        }).catch(e => { console.error('Load Cloud Error!', e.message); if (sendback) myGameInstance.SendMessage('YandexGame','SetLoadSaves','noData'); resolve('noData'); });
+      } catch(e) { console.error('CRASH Load saves Cloud:', e.message); if (sendback) myGameInstance.SendMessage('YandexGame','SetLoadSaves','noData'); resolve('noData'); }
+    });
+  }
+
+  // ── PAYMENTS ──────────────────────────────────────────────────────────────
+  var paymentsData = 'none';
+  function GetPayments(sendback) {
+    return new Promise(resolve => {
+      try {
+        if (!ysdk) { resolve('none'); return; }
+        ysdk.getPayments().then(_payments => {
+          payments = _payments;
+          payments.getCatalog().then(products => {
+            payments.getPurchases().then(purchases => {
+              let ids=[],titles=[],descs=[],imgs=[],prices=[],vals=[],codes=[],curImgs=[],consumed=[];
+              for (let i=0;i<products.length;i++) {
+                ids[i]=products[i].id; titles[i]=products[i].title; descs[i]=products[i].description;
+                imgs[i]=products[i].imageURI; prices[i]=products[i].price; vals[i]=products[i].priceValue;
+                codes[i]=products[i].priceCurrencyCode; curImgs[i]=products[i].getPriceCurrencyImage("medium");
+                consumed[i]=!purchases.some(p=>p.productID===ids[i]);
+              }
+              let json=JSON.stringify({id:ids,title:titles,description:descs,imageURI:imgs,price:prices,
+                priceValue:vals,priceCurrencyCode:codes,currencyImageURL:curImgs,consumed,language:ysdk.environment.i18n.lang});
+              if (sendback) myGameInstance.SendMessage('YandexGame','PaymentsEntries',json);
+              resolve(json);
+            });
+          });
+        }).catch(e=>{ console.log('Purchases not available',e.message); resolve('none'); });
+      } catch(e) { console.error('CRASH Init Payments:',e.message); resolve('none'); }
+    });
+  }
+  function BuyPayments(id) {
+    try {
+      if (payments) {
+        payments.purchase(id).then(()=>{ ConsumePurchase(id); FocusGame(); })
+          .catch(e=>{ console.error('Purchase Failed',e.message); myGameInstance.SendMessage('YandexGame','OnPurchaseFailed',id); FocusGame(); });
+      }
+    } catch(e) { console.error('CRASH Buy Payments:',e.message); FocusGame(); }
+  }
+  function ConsumePurchase(id) {
+    try {
+      if (payments) payments.getPurchases().then(purchases=>{
+        purchases.forEach(p=>{ if(p.productID===id){ payments.consumePurchase(p.purchaseToken); myGameInstance.SendMessage('YandexGame','OnPurchaseSuccess',id); }});
+      });
+    } catch(e) { console.error('CRASH Consume Purchase:',e.message); }
+  }
+  function ConsumePurchases() {
+    try {
+      if (payments) payments.getPurchases().then(purchases=>{
+        purchases.forEach(p=>{ payments.consumePurchase(p.purchaseToken); myGameInstance.SendMessage('YandexGame','OnPurchaseSuccess',p.productID); });
+      });
+    } catch(e) { console.error('CRASH Consume purchases:',e.message); }
+  }
+
+  // ── LEADERBOARDS ──────────────────────────────────────────────────────────
+  let leaderboard = null;
+  function InitLeaderboards() { ysdk.getLeaderboards().then(_lb=>leaderboard=_lb); }
+  function WaitForLeaderboard() {
+    return new Promise((resolve,reject) => {
+      const iv=setInterval(()=>{ if(leaderboard){clearInterval(iv);clearTimeout(to);resolve();} },100);
+      const to=setTimeout(()=>{ clearInterval(iv); reject(new Error("Leaderboard timeout")); },5000);
+    });
+  }
+  async function GetLeaderboardScores(nameLB,maxPlayers,quantityTop,quantityAround,photoSize,auth) {
+    try {
+      if (!leaderboard) await WaitForLeaderboard();
+      var jsonEntries={technoName:'',isDefault:false,isInvertSortOrder:false,decimalOffset:0,type:''};
+      ysdk.getLeaderboards()
+        .then(lb=>lb.getLeaderboardDescription(nameLB))
+        .then(res=>{
+          jsonEntries.technoName=nameLB; jsonEntries.isDefault=res.default;
+          jsonEntries.isInvertSortOrder=res.description.invert_sort_order;
+          jsonEntries.decimalOffset=res.description.score_format.options.decimal_offset;
+          jsonEntries.type=res.description.type;
+          return leaderboard.getLeaderboardEntries(nameLB,{quantityTop,includeUser:auth,quantityAround});
+        })
+        .then(res=>{ let jp=EntriesLB(res,maxPlayers,photoSize); myGameInstance.SendMessage('YandexGame','LeaderboardEntries',JSON.stringify({...jsonEntries,...jp})); })
+        .catch(e=>console.error(e));
+    } catch(e) { console.error('CRASH Get Leaderboard:',e.message); }
+  }
+  async function SetLeaderboardScores(_name,score) {
+    try {
+      if (!leaderboard) await WaitForLeaderboard();
+      ysdk.getLeaderboards().then(lb=>lb.setLeaderboardScore(_name,score));
+    } catch(e) { console.error('CRASH Set Leaderboard:',e.message); }
+  }
+  function EntriesLB(res,maxPlayers,photoSize) {
+    const count=Math.min(res.entries.length,maxPlayers);
+    let ranks=[],photos=[],names=[],scores=[],ids=[],text='';
+    for(let i=0;i<count;i++){
+      ranks[i]=res.entries[i].rank; scores[i]=res.entries[i].score; ids[i]=res.entries[i].player.uniqueID;
+      photos[i]=res.entries[i].player.getAvatarSrc(photoSize);
+      names[i]=res.entries[i].player.scopePermissions.public_name==='allow'?res.entries[i].player.publicName:'anonymous';
+      text+=`${ranks[i]}. ${names[i]}: ${scores[i]}\n`;
+    }
+    return {entries:count?text:'no data',ranks,photos,names,scores,uniqueIDs:ids};
+  }
+
+  // ── ENVIRONMENT ───────────────────────────────────────────────────────────
+  var environmentData='null';
+  function RequestingEnvironmentData(sendback) {
+    return new Promise(resolve=>{
+      if (!ysdk){resolve('null');return;}
+      try {
+        let promptCanShow=false,reviewCanShow=false;
+        ysdk.feedback.canReview().then(({value})=>{
+          if(value) reviewCanShow=true;
+          ysdk.shortcut.canShowPrompt().then(prompt=>{
+            if(prompt.canShow) promptCanShow=true;
+            let ua=navigator.userAgent, browser='Other';
+            if(ua.includes('YaBrowser')||ua.includes('YaSearchBrowser')) browser='Yandex';
+            else if(ua.includes('Opera')||ua.includes('OPR')) browser='Opera';
+            else if(ua.includes('Firefox')) browser='Firefox';
+            else if(ua.includes('MSIE')||ua.includes('Trident')) browser='IE';
+            else if(ua.includes('Edge')) browser='Edge';
+            else if(ua.includes('Chrome')) browser='Chrome';
+            else if(ua.includes('Safari')) browser='Safari';
+            let json=JSON.stringify({language:ysdk.environment.i18n.lang,domain:ysdk.environment.i18n.tld,
+              deviceType:ysdk.deviceInfo.type,isMobile:ysdk.deviceInfo.isMobile(),isDesktop:ysdk.deviceInfo.isDesktop(),
+              isTablet:ysdk.deviceInfo.isTablet(),isTV:ysdk.deviceInfo.isTV(),appID:ysdk.environment.app.id,
+              browserLang:ysdk.environment.browser.lang,payload:ysdk.environment.payload,
+              promptCanShow,reviewCanShow,platform:navigator.platform,browser});
+            if(sendback) myGameInstance.SendMessage('YandexGame','SetEnvirData',json);
+            resolve(json);
+          });
+        });
+      } catch(e){console.error('CRASH Env Data:',e.message);resolve('null');}
+    });
+  }
+
+  // ── PLAYER ────────────────────────────────────────────────────────────────
+  var playerData='noData';
+  function InitPlayer(sendback) {
+    return new Promise(resolve=>{
+      try {
+        if (!ysdk){
+          const r=NotAuthorized(); if(sendback) myGameInstance.SendMessage('YandexGame','SetInitializationSDK',r); resolve(r); return;
+        }
+        ysdk.getPlayer({scopes:true}).then(_player=>{
+          player=_player;
+          if(player.getMode()==='lite'){
+            const r=NotAuthorized(); if(sendback) myGameInstance.SendMessage('YandexGame','SetInitializationSDK',r); resolve(r);
+          } else {
+            let json=JSON.stringify({playerAuth:'resolved',playerName:player.getName(),
+              playerId:player.getUniqueID(),playerPhoto:player.getPhoto('small'),payingStatus:player.getPayingStatus()});
+            if(sendback) myGameInstance.SendMessage('YandexGame','SetInitializationSDK',json); resolve(json);
+          }
+        }).catch(e=>{console.error('Auth err:',e.message);const r=NotAuthorized();if(sendback)myGameInstance.SendMessage('YandexGame','SetInitializationSDK',r);resolve(r);});
+      } catch(e){console.error('CRASH init Player:',e.message);const r=NotAuthorized();if(sendback)myGameInstance.SendMessage('YandexGame','SetInitializationSDK',r);resolve(r);}
+    });
+  }
+  function NotAuthorized() {
+    return JSON.stringify({playerAuth:'rejected',playerName:'unauthorized',playerId:'unauthorized',playerPhoto:'unknown',payingStatus:'unknown'});
+  }
+  function OpenAuthDialog() {
+    if (ysdk) {
+      try {
+        ysdk.auth.openAuthDialog().then(()=>{ InitPlayer(true).then(()=>{ myGameInstance.SendMessage('YandexGame','GetDataInvoke'); }); });
+      } catch(e){console.log('CRASH Auth Dialog:',e.message);}
+    }
+  }
+
+  // ── FLAGS ─────────────────────────────────────────────────────────────────
+  let flasgsData='null';
+  function GetFlags() {
+    return new Promise(resolve=>{
+      if (!ysdk){resolve('null');return;}
+      try {
+        ysdk.getFlags().then(flags=>{
+          let names=[],values=[];
+          for(let k in flags){if(flags.hasOwnProperty(k)){names.push(k);values.push(flags[k]);}}
+          resolve(JSON.stringify({names,values}));
+        });
+      } catch(e){console.error('CRASH Get Flags:',e.message);resolve('null');}
+    });
+  }
+
+  document.body.appendChild(script);
+</script>
+
+<script src="Build/cheatsMOD.loader.js"></script>
+</body>
+</html>
