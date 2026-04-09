@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Bad Apple ASCII</title>
+  <link rel="stylesheet" href="main.css">
+
+  <script type="3f882b8ddc9aa07326d8e717-text/javascript">
+    // Patch Image constructor to auto-set crossOrigin for WebGL compatibility. This is automatically injected by Gamplo.
+    (function() {
+      const OriginalImage = window.Image;
+      window.Image = function() {
+        const img = new OriginalImage();
+        const originalSet = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src').set;
+        Object.defineProperty(img, 'src', {
+          set: function(value) {
+            if (!this.crossOrigin) {
+              this.crossOrigin = 'anonymous';
+            }
+            originalSet.call(this, value);
+          },
+          get: function() {
+            return this.getAttribute('src');
+          }
+        });
+        return img;
+      };
+
+      const originalCreateElement = document.createElement;
+      document.createElement = function(tagName) {
+        const element = originalCreateElement.call(document, tagName);
+        if (tagName.toLowerCase() === 'img') {
+          const originalSet = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src').set;
+          Object.defineProperty(element, 'src', {
+            set: function(value) {
+              if (!this.crossOrigin) {
+                this.crossOrigin = 'anonymous';
+              }
+              originalSet.call(this, value);
+            },
+            get: function() {
+              return this.getAttribute('src');
+            },
+            configurable: true
+          });
+        }
+        return element;
+      };
+    })();
+  </script>
+</head>
+
+<body>
+
+  <div id="container">
+    <video id="video" autoplay loop muted playsinline crossorigin="anonymous">
+      <source src="badapple.mp4" type="video/mp4">
+      Your browser does not support video.
+    </video>
+    <canvas id="canvas"></canvas>
+    <pre id="ascii"></pre>
+  </div>
+
+  <script src="game.js" type="3f882b8ddc9aa07326d8e717-text/javascript"></script>
+  <script src="https://games.gamplo.com/cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js" data-cf-settings="3f882b8ddc9aa07326d8e717-|49" defer></script>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"2bbe900f4800485bbf848fc5c639e98f","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+
+</html>
