@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Stupid quiz 1</title>
+  <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1,minimal-ui=true">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="full-screen" content="yes">
+  <meta name="x5-fullscreen" content="true">
+  <meta name="360-fullscreen" content="true">
+  <meta name="x5-page-mode" content="app">
+  <style type="text/css">
+    @keyframes scaleDraw {
+      0% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
+        -webkit-transform-origin: center center;
+        transform-origin: center center;
+        -webkit-animation-timing-function: ease-out;
+        animation-timing-function: ease-out
+      }
+
+      10% {
+        -webkit-transform: scale(.91);
+        transform: scale(.91);
+        -webkit-animation-timing-function: ease-in;
+        animation-timing-function: ease-in
+      }
+
+      17% {
+        -webkit-transform: scale(.98);
+        transform: scale(.98);
+        -webkit-animation-timing-function: ease-out;
+        animation-timing-function: ease-out
+      }
+
+      33% {
+        -webkit-transform: scale(.87);
+        transform: scale(.87);
+        -webkit-animation-timing-function: ease-in;
+        animation-timing-function: ease-in
+      }
+
+      45% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
+        -webkit-animation-timing-function: ease-out;
+        animation-timing-function: ease-out
+      }
+    }
+
+    html {
+      -ms-touch-action: none
+    }
+
+    body,
+    canvas,
+    div {
+      display: block;
+      outline: 0;
+      user-select: none;
+      -moz-user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      -khtml-user-select: none;
+      -webkit-tap-highlight-color: transparent
+    }
+
+    input::-webkit-inner-spin-button,
+    input::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0
+    }
+
+    #game-title-box,
+    body {
+      position: absolute;
+      width: 100%;
+      display: flex
+    }
+
+    body {
+      top: 0;
+      left: 0;
+      height: 100%;
+      padding: 0;
+      border: 0;
+      margin: 0;
+      cursor: default;
+      color: #888;
+      background-color: #333;
+      text-align: center;
+      font-family: Helvetica, Verdana, Arial, sans-serif;
+      flex-direction: column
+    }
+
+    canvas {
+      background-color: transparent
+    }
+
+    #Cocos3dGameContainer,
+    #GameCanvas,
+    #GameDiv {
+      width: 100%;
+      height: 100%
+    }
+
+    @font-face {
+      font-family: GROBOLD;
+      src: url(assets/resources/native/87/874cca05-cb06-459c-a734-17bb220a73ee.9145f/GROBOLD.ttf)
+    }
+
+    #game-title-box {
+      justify-content: center
+    }
+
+    #game-title {
+      font-family: GROBOLD;
+      color: #3052cb;
+      -webkit-text-stroke: 1px #fff
+    }
+
+    #game-home-bg {
+      background-size: 100% auto;
+      width: 100%;
+      height: 100%;
+      background-position: center center;
+      background-repeat: no-repeat;
+      display: flex;
+      flex-direction: column;
+      justify-content: center
+    }
+
+    .progress-bar {
+      display: block !important;
+      margin-top: 5%
+    }
+
+    .zz-min-img-2 {
+      margin-left: 82% !important;
+      margin-bottom: 6% !important
+    }
+
+    .zz-portrait-min-img-2 {
+      margin-left: 30% !important;
+      margin-bottom: -4% !important;
+      width: 16% !important
+    }
+
+    .game-title-2 {
+      margin-bottom: 10%
+    }
+
+    .zz-min-img-1 {
+      margin-left: 77% !important;
+      margin-bottom: 8% !important
+    }
+
+    .zz-portrait-min-img-1 {
+      margin-left: 24% !important;
+      margin-bottom: -3% !important;
+      width: 16% !important
+    }
+
+    @media screen and (orientation:portrait) {
+      #game-play img {
+        width: 30%
+      }
+
+      .progress-bar img {
+        margin-left: 37%;
+        margin-top: 20%
+      }
+
+      #game-title-box {
+        margin-bottom: 66%
+      }
+
+      #game-title {
+        width: 92%;
+        font-size: 6.5cqw;
+        line-height: 6.8cqw
+      }
+
+      #zz-min-img {
+        margin-left: 41%;
+        margin-bottom: 1%;
+        width: 13%
+      }
+    }
+
+    @media screen and (orientation:landscape) {
+      #game-play img {
+        width: 24%
+      }
+
+      #game-title-box {
+        margin-bottom: 36%
+      }
+
+      #game-title {
+        font-size: 3.6cqw;
+        line-height: 3.9cqw;
+        width: 71%
+      }
+
+      #zz-min-img {
+        margin-left: 23%;
+        margin-bottom: -5%;
+        width: 12%
+      }
+    }
+
+    #game-play img {
+      animation: scaleDraw 1.5s ease-in-out infinite both
+    }
+
+    .fadeOutAnimation {
+      -webkit-transition: all .5s;
+      -moz-transition: all .5s;
+      -ms-transition: all .5s;
+      -o-transition: all .5s;
+      transition: all .5s;
+      opacity: 0
+    }
+
+    #zz-min-box {
+      justify-content: left;
+      display: flex;
+      position: absolute;
+      width: 100%;
+      margin-bottom: 13%
+    }
+
+    #zz-min-img {
+      transform: rotate(20deg)
+    }
+  </style>
+  <script async data-ad-client="ca-pub-9284205722386242" data-ad-frequency-hint="120s" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" type="65a28b8c405ba0b298dcdfdd-text/javascript"></script>
+  <script type="65a28b8c405ba0b298dcdfdd-text/javascript">
+    function getUrlParam(e) {
+      var t = new RegExp("(^|&)" + e + "=([^&]*)(&|$)", "i"),
+        n = window.location.search.substring(1).match(t);
+      return null != n ? decodeURI(n[2]) : null
+    }
+
+    function xhr(e, t = (e => {}), n = null, o = {}) {
+      o.method = o.method || "GET", o.startLimit = o.startLimit || 1e3, o.maxLimit = o.maxLimit || 6e5;
+      let a = 0,
+        i = new XMLHttpRequest;
+      i.onerror = function(t) {
+        console.log("xhr: %s error", e, t), xhr.do(e, n, o, i, ++a)
+      }, i.onload = function(d) {
+        i.status >= 200 && i.status < 400 ? t(i.responseText) : (console.log("xhr: %s load error", e, d), xhr.do(e, n, o, i, ++a))
+      }, i.ontimeout = function(t) {
+        console.log("xhr: %s timeout", e, t), xhr.do(e, n, o, i, ++a)
+      }, xhr.do(e, n, o, i, a)
+    }
+
+    function setTitle(e) {
+      var t = document.getElementById("game-title");
+      t && (t.innerHTML = e)
+    }
+
+    function setThemeIndex() {
+      let e = parseInt(getUrlParam("_theme_index"));
+      window._theme_index = e && e > 0 && e <= 3 ? e : 3
+    }
+
+    function setImg() {
+      var e = !1,
+        t = document.getElementById("game-home-bg"),
+        n = window.matchMedia("screen and (orientation:landscape)"),
+        o = new Image;
+      const a = () => {
+        var a = "";
+        if (a = n.matches ? ["./image/home-bg-1.png", "./image/home-bg-2.png", "./assets/resources/native/86/864d0483-b9cb-4a7e-81ab-b8a046403ed3.0a68c.jpg"][window._theme_index - 1] : ["./image/home-portrait-bg-1.png", "./image/home-portrait-bg-2.png", "./assets/resources/native/f6/f6015fe7-7091-4e13-bb05-2f9f72507511.c2f99.jpg"][window._theme_index - 1], o.src = a, o.onload = function() {
+            t.style.backgroundImage = `url(${a})`, e || (e = !0, onLoadImgPlayComplete())
+          }, o.onerror = function() {
+            e || (e = !0, onLoadImgPlayComplete())
+          }, setInterval(() => {
+            onLoadImgPlayComplete()
+          }, 5e3), 2 == window._theme_index) {
+          var i = document.getElementById("game-title");
+          n.matches ? (zzimg.className = "zz-min-img-2", i.className = "") : (zzimg.className = "zz-portrait-min-img-2", i.className = "game-title-2")
+        } else 1 == window._theme_index && (n.matches ? zzimg.className = "zz-min-img-1" : zzimg.className = "zz-portrait-min-img-1")
+      };
+      n.onchange = (() => {
+        a()
+      }), a()
+    }
+
+    function onGameComplete(e) {
+      window._GameData = e, setThemeIndex(), setImg(), e && e.title && setTitle(e.title), onLoadImgPlayComplete()
+    }
+
+    function sendData() {
+      if (1 == getUrlParam("_local")) {
+        return void onGameComplete({}.results)
+      }
+      let e = {
+        type: "frameOnReady",
+        data: {}
+      };
+      window.top && window.top.postMessage(e, "*")
+    }
+
+    function playAdBreak(e = (() => {}), t = (() => {})) {
+      window.adBreak && window.adBreak({
+        type: "start",
+        name: "start_ad",
+        beforeAd: () => {
+          e && e(), sendStart(), console.warn("begin ad")
+        },
+        afterAd: () => {
+          t && t(), console.info("ended ad!")
+        },
+        adBreakDone: e => {
+          console.info("info", e)
+        }
+      })
+    }
+
+    function sendStart() {
+      window.top && window.top.postMessage({
+        type: "frameOnClickBtn",
+        data: {
+          type: "start"
+        }
+      }, "*")
+    }
+
+    function onGameLoadingComplete() {
+      window.top && window.top.postMessage({
+        type: "frameOnLoadComplete",
+        data: {}
+      }, "*")
+    }
+    xhr.do = function(e, t = null, n, o, a) {
+      let i = a ? Math.pow(2, a - 1) * n.startLimit : 0;
+      i = i < n.maxLimit ? i : n.maxLimit;
+      let d = Math.random() * i;
+      o.timeout = d < 2e3 ? 2e3 : d, setTimeout(function() {
+        o.open(n.method, e), o.send(t)
+      }, d)
+    }, document.addEventListener("DOMContentLoaded", function() {
+      sendData()
+    }), window.addEventListener("message", function(e) {
+      let t = e.data;
+      if ("h5Control" == t.type) {
+        let e = t.data;
+        if ("apiData" == e.type) {
+          onGameComplete(e.data)
+        }
+      }
+    }), window.adsbygoogle = window.adsbygoogle || [], window.adBreak = adConfig = function(e) {
+      adsbygoogle.push(e)
+    }, window._adInit = !1, adConfig({
+      preloadAdBreaks: "on",
+      onReady: () => {
+        console.warn("adconfigure ready!"), window._adInit = !0, window.adConfigOnReady && window.adConfigOnReady()
+      }
+    });
+    var countLoadImgPlayComplete = 0;
+
+    function onLoadImgPlayComplete() {
+      4 == ++countLoadImgPlayComplete && onGameLoadingComplete()
+    }
+    setTimeout(() => {
+      onLoadImgPlayComplete()
+    }, 1e3);
+    var loadingCount = 0,
+      _isSendGameInit = !1,
+      _isButtonPlay = !1,
+      isremove = !1;
+
+    function buttonPlay() {
+      if (!isremove || _isButtonPlay) {
+        if (!_isButtonPlay) {
+          _isButtonPlay = !0, document.getElementById("game-play").style.display = "none", document.getElementById("game-loading").style.display = "block";
+          var e = () => {
+            playAdBreak(() => {
+              onGameLoad(1)
+            }, () => {
+              onGameLoad(1)
+            }), setTimeout(() => {
+              onGameLoad(2)
+            }, 4e3)
+          };
+          window._adInit ? e() : setTimeout(() => {
+            if (window._adInit) e();
+            else try {
+              onGameLoad(2), playAdBreak(() => {
+                window._adInit = !0
+              }, () => {})
+            } catch (e) {}
+          }, 1500)
+        }
+      } else window._onPlayGame2 && window._onPlayGame2()
+    }
+
+    function onGameLoad(e = 1) {
+      if (loadingCount += e, _isSendGameInit && (loadingCount >= 3 || !_isButtonPlay)) {
+        var t = document.getElementById("loadingdiv");
+        t && !isremove && (isremove = !0, t.className = "fadeOutAnimation", setTimeout(() => {
+          t && (t.style.display = "none", t.parentNode.removeChild(t))
+        }, 500), _isButtonPlay && window._onPlayGame && window._onPlayGame())
+      }
+    }
+    window._sendGameInit = function() {
+        _isSendGameInit = !0, onGameLoad()
+      },
+      function(e, t, n, o, a) {
+        e[o] = e[o] || [], e[o].push({
+          "gtm.start": (new Date).getTime(),
+          event: "gtm.js"
+        });
+        var i = t.getElementsByTagName(n)[0],
+          d = t.createElement(n);
+        d.async = !0, d.src = "https://www.googletagmanager.com/gtm.js?id=GTM-PGQTL33", i.parentNode.insertBefore(d, i)
+      }(window, document, "script", "dataLayer");
+  </script>
+</head>
+
+<body style="background-color:#000"><noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PGQTL33" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <div id="loadingdiv" style="display:flex;justify-content:center;align-items:center;position:absolute;height:100%;width:100%;z-index:1000;background-color:#000">
+    <div id="game-home-bg">
+      <div id="zz-min-box"><img id="zz-min-img" src=""></div>
+      <div id="game-title-box">
+        <div id="game-title">loading...</div>
+      </div>
+      <div class="progress-bar" style="display:none">
+        <div id="game-loading" style="display:none"><img src="./image/loading.svg"></div>
+        <div id="game-play" style="display:block" onclick="if (!window.__cfRLUnblockHandlers) return false; buttonPlay()" data-cf-modified-65a28b8c405ba0b298dcdfdd-="">
+          <script src="https://mashaquiz.com/cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js" data-cf-settings="65a28b8c405ba0b298dcdfdd-|49"></script><img src="./assets/resources/native/a1/a10eef2d-27df-4a50-b98b-99d43cb9bf0c.2e3da.png" onload="onLoadImgPlayComplete()">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="GameDiv" cc_exact_fit_screen="true">
+    <div id="Cocos3dGameContainer"><canvas id="GameCanvas" oncontextmenu="if (!window.__cfRLUnblockHandlers) return false; event.preventDefault()" tabindex="99" data-cf-modified-65a28b8c405ba0b298dcdfdd-=""></canvas></div>
+  </div>
+  <script src="src/polyfills.bundle.5adbf.js" charset="utf-8" type="65a28b8c405ba0b298dcdfdd-text/javascript"></script>
+  <script src="src/system.bundle.692e9.js" charset="utf-8" type="65a28b8c405ba0b298dcdfdd-text/javascript"></script>
+  <script src="src/import-map.5480b.json" type="systemjs-importmap" charset="utf-8"></script>
+  <script type="65a28b8c405ba0b298dcdfdd-text/javascript">
+    System.import("./index.3ab8c.js").catch(function(c) {
+      console.error(c)
+    })
+  </script>
+  <script src="https://mashaquiz.com/cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js" data-cf-settings="65a28b8c405ba0b298dcdfdd-|49" defer></script>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"1da08a2a4143413e8da4b0f71fc8305e","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+
+</html>
