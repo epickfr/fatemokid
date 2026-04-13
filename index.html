@@ -3,57 +3,109 @@
 <head>
 <title>Epick's hub</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style type="text/css">
   body {
-    background-color: white;
-    color: black;
+    background-color: black;
+    color: #00ff00;
     font-family: "Courier New", Courier, monospace;
     font-size: 14pt;
     margin: 40px;
   }
+
+  input {
+    background: black;
+    color: #00ff00;
+    border: 1px solid #00ff00;
+    padding: 5px;
+    font-family: monospace;
+  }
+
+  button {
+    background: black;
+    color: #00ff00;
+    border: 1px solid #00ff00;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: #00ff00;
+    color: black;
+  }
+
+  #mainContent {
+    display: none;
+  }
+
   pre { 
     font-size: 11pt; 
     margin: 0; 
     white-space: pre;
   }
+
   h1 {
     font-size: 18pt;
     text-align: center;
     margin-bottom: 20px;
   }
+
   a {
     color: blue;
     text-decoration: none;
   }
+
   a:hover {
     color: red;
     background: yellow;
   }
+
   .dir {
     margin: 6px 0;
   }
+
   .tree {
     white-space: pre;
     font-size: 10pt;
-    color: #004400;
+    color: #00ff00;
     margin: 20px auto;
     max-width: 90%;
   }
+
   hr {
     border: 0;
     height: 1px;
-    background: black;
+    background: #00ff00;
     margin: 30px 0;
   }
+
   .footer {
     margin-top: 50px;
     font-size: 10pt;
     text-align: center;
-    color: #444;
+    color: #00ff00;
+  }
+
+  .center {
+    text-align: center;
+    margin-top: 100px;
   }
 </style>
 </head>
+
 <body>
+
+<!-- 🔐 KEY SCREEN -->
+<div id="loginScreen" class="center">
+  <h1>ACCESS TERMINAL</h1>
+  <p>Enter key to continue</p>
+  <input type="password" id="keyInput" placeholder="ENTER KEY">
+  <button onclick="checkKey()">UNLOCK</button>
+  <p id="error" style="color:red;"></p>
+</div>
+
+<!-- 🔓 MAIN CONTENT -->
+<div id="mainContent">
 
 <h1>Epick's Stuff</h1>
 
@@ -104,31 +156,22 @@ J@b ```JNWHHHHHHHHHHHHHHHHHHHHHHHHHHd@ ``````J@F
   cool
   --------------------------------
   
-  <span class="dir">>> <a href="Prox/">⭐ProxShare</a>          - sharing thing</span>
-  <span class="dir">>> <a href="lunaflix/">⭐LunaFlix</a>        - watch free movies and tv ig</span>
-  <span class="dir">>> <a href="gnmath/">⭐Gnmath</a>        - Play games</span>
-  <span class="dir">>> <a href="Apex/">Apex Calculator</a>        - calculator for math and science</span>
-  <span class="dir">>> <a href="TeamQ0/">Team Q0</a>        - My team</span>
-  <span class="dir">>> <a href="metellinggemeinithatwegottabreakup/">me breaking up with gemini</a>        - so sad</span>
-  <span class="dir">>> <a href="teirlist/">Teir List</a>        - My teir list of people</span>
-  <span class="dir">>> <a href="ttt/">running dog</a>        - hehe dog</span>
-  
-  --------------------------------
-  Student keeper
-  --------------------------------
-  
-  <span class="dir">>> <a href="blockedwordsonstudenkeeper/">⭐student keeper blocklist</a>        - blocked keywords</span>
-  <span class="dir">>> <a href="bwc/">⭐student keeper flag list checker</a>        - check sentances to see how many times student keeper will flag you</span>
-  <span class="dir">>> <a href="listdownload/">📁student keeper Flag.txt </a>        - download portal for the student keeper flaglist</span>
-  <span class="dir">>> <a href="skbd/">📁student keeper Semi Bypass</a>        - Its a semi bypass, still working on taking all that code rn.</span>
+  <span class="dir">>> <a href="Prox/">⭐ProxShare</a></span>
+  <span class="dir">>> <a href="lunaflix/">⭐LunaFlix</a></span>
+  <span class="dir">>> <a href="gnmath/">⭐Gnmath</a></span>
+  <span class="dir">>> <a href="Apex/">Apex Calculator</a></span>
+  <span class="dir">>> <a href="TeamQ0/">Team Q0</a></span>
+  <span class="dir">>> <a href="metellinggemeinithatwegottabreakup/">me breaking up with gemini</a></span>
+  <span class="dir">>> <a href="teirlist/">Teir List</a></span>
+  <span class="dir">>> <a href="ttt/">running dog</a></span>
   
   --------------------------------
   Games
   --------------------------------
 
-  <span class="dir">>> <a href="eagleride/">🦅EagleRide</a>        - Worst game ever.</span>
-  <span class="dir">>> <a href="FG/">Flying Gorilla</a>        - flying gorilla fr</span>
-  <span class="dir">>> <a href="sssrfr/">Spongebob square pants sponge run</a>        - he runnin fr</span>
+  <span class="dir">>> <a href="eagleride/">🦅EagleRide</a></span>
+  <span class="dir">>> <a href="FG/">Flying Gorilla</a></span>
+  <span class="dir">>> <a href="sssrfr/">Spongebob run</a></span>
 </pre>
 
 <hr>
@@ -136,6 +179,24 @@ J@b ```JNWHHHHHHHHHHHHHHHHHHHHHHHHHHd@ ``````J@F
 <div class="footer">
   <small><a href="">nothingness</a> - made by Epick</small>
 </div>
+
+</div>
+
+<!-- 🔑 SCRIPT -->
+<script>
+  const ACCESS_KEY = "doaspin";
+
+  function checkKey() {
+    const input = document.getElementById("keyInput").value;
+
+    if (input === ACCESS_KEY) {
+      document.getElementById("loginScreen").style.display = "none";
+      document.getElementById("mainContent").style.display = "block";
+    } else {
+      document.getElementById("error").innerText = "ACCESS DENIED";
+    }
+  }
+</script>
 
 </body>
 </html>
