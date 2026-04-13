@@ -6,58 +6,69 @@
 
 <style type="text/css">
   body {
-    background-color: black;
-    color: #00ff00;
+    background-color: #f0f0f0;
+    color: #000000;
     font-family: "Courier New", Courier, monospace;
     font-size: 14pt;
     margin: 40px;
+    background-image: url('https://web.archive.org/web/20091026215346im_/http://geocities.com/we_heart_mark/modance2.gif'); /* optional subtle paper texture */
+    background-repeat: repeat;
   }
 
   input {
-    background: black;
-    color: #00ff00;
-    border: 1px solid #00ff00;
+    background: #ffffff;
+    color: #000000;
+    border: 2px solid #000000;
     padding: 5px;
     font-family: monospace;
+    font-size: 14pt;
   }
 
   button {
-    background: black;
-    color: #00ff00;
-    border: 1px solid #00ff00;
-    padding: 5px 10px;
+    background: #ffffff;
+    color: #000000;
+    border: 2px solid #000000;
+    padding: 6px 12px;
     cursor: pointer;
+    font-family: monospace;
+    font-weight: bold;
   }
 
   button:hover {
-    background: #00ff00;
-    color: black;
+    background: #000000;
+    color: #ffffff;
   }
 
   #mainContent {
-    display: none;
+    display: block;
   }
 
   pre { 
     font-size: 11pt; 
     margin: 0; 
     white-space: pre;
+    background: #ffffff;
+    border: 2px solid #000000;
+    padding: 15px;
+    overflow: auto;
   }
 
   h1 {
-    font-size: 18pt;
+    font-size: 22pt;
     text-align: center;
     margin-bottom: 20px;
+    text-decoration: underline;
+    color: #000000;
   }
 
   a {
-    color: blue;
-    text-decoration: none;
+    color: #0000ff;
+    text-decoration: underline;
   }
 
   a:hover {
-    color: red;
-    background: yellow;
+    color: #ff0000;
+    background: #ffff00;
   }
 
   .dir {
@@ -67,44 +78,38 @@
   .tree {
     white-space: pre;
     font-size: 10pt;
-    color: #00ff00;
-    margin: 20px auto;
+    color: #000000;
+    margin: 30px auto;
     max-width: 90%;
+    text-align: center;
+    line-height: 1.1;
   }
 
   hr {
     border: 0;
-    height: 1px;
-    background: #00ff00;
-    margin: 30px 0;
+    height: 2px;
+    background: #000000;
+    margin: 40px 0;
   }
 
   .footer {
-    margin-top: 50px;
+    margin-top: 60px;
     font-size: 10pt;
     text-align: center;
-    color: #00ff00;
+    color: #000000;
+    border-top: 1px solid #000000;
+    padding-top: 10px;
   }
 
   .center {
     text-align: center;
-    margin-top: 100px;
+    margin-top: 80px;
   }
 </style>
 </head>
 
 <body>
 
-<!-- 🔐 KEY SCREEN -->
-<div id="loginScreen" class="center">
-  <h1>ACCESS TERMINAL</h1>
-  <p>Enter key to continue</p>
-  <input type="password" id="keyInput" placeholder="ENTER KEY">
-  <button onclick="checkKey()">UNLOCK</button>
-  <p id="error" style="color:red;"></p>
-</div>
-
-<!-- 🔓 MAIN CONTENT -->
 <div id="mainContent">
 
 <h1>Epick's Stuff</h1>
@@ -137,7 +142,7 @@ J@b ```JNWHHHHHHHHHHHHHHHHHHHHHHHHHHd@ ``````J@F
 </div>
 
 <pre>
-  Directory of /
+  Directory of C:\EPICK\HUB
 
   ⭐ = important
   📁 = Download
@@ -146,57 +151,41 @@ J@b ```JNWHHHHHHHHHHHHHHHHHHHHHHHHHHd@ ``````J@F
   models
   --------------------------------
   
-  <span class="dir">>> <a href="kirby/">kirby model</a>        - kirby haha spin</span>
-  <span class="dir">>> <a href="USB/">USB model</a>        - USB haha spin</span>
-  <span class="dir">>> <a href="disc/">disc model</a>        - disc haha spin</span>
-  <span class="dir">>> <a href="3dmod/">3D model viewer</a>        - obj files wowowow</span>
-  <span class="dir">>> <a href="3d/">⭐3D model MAKER</a>        - Simple yet effective 3d model maker</span>
+  >> <a href="kirby/">kirby model</a>        - kirby haha spin
+  >> <a href="USB/">USB model</a>        - USB haha spin
+  >> <a href="disc/">disc model</a>        - disc haha spin
+  >> <a href="3dmod/">3D model viewer</a>        - obj files wowowow
+  >> <a href="3d/">⭐3D model MAKER</a>        - Simple yet effective 3d model maker
   
   --------------------------------
   cool
   --------------------------------
   
-  <span class="dir">>> <a href="Prox/">⭐ProxShare</a></span>
-  <span class="dir">>> <a href="lunaflix/">⭐LunaFlix</a></span>
-  <span class="dir">>> <a href="gnmath/">⭐Gnmath</a></span>
-  <span class="dir">>> <a href="Apex/">Apex Calculator</a></span>
-  <span class="dir">>> <a href="TeamQ0/">Team Q0</a></span>
-  <span class="dir">>> <a href="metellinggemeinithatwegottabreakup/">me breaking up with gemini</a></span>
-  <span class="dir">>> <a href="teirlist/">Teir List</a></span>
-  <span class="dir">>> <a href="ttt/">running dog</a></span>
+  >> <a href="Prox/">⭐ProxShare</a>
+  >> <a href="lunaflix/">⭐LunaFlix</a>
+  >> <a href="gnmath/">⭐Gnmath</a>
+  >> <a href="Apex/">Apex Calculator</a>
+  >> <a href="TeamQ0/">Team Q0</a>
+  >> <a href="metellinggemeinithatwegottabreakup/">me breaking up with gemini</a>
+  >> <a href="teirlist/">Teir List</a>
+  >> <a href="ttt/">running dog</a>
   
   --------------------------------
   Games
   --------------------------------
 
-  <span class="dir">>> <a href="eagleride/">🦅EagleRide</a></span>
-  <span class="dir">>> <a href="FG/">Flying Gorilla</a></span>
-  <span class="dir">>> <a href="sssrfr/">Spongebob run</a></span>
+  >> <a href="eagleride/">🦅EagleRide</a>
+  >> <a href="FG/">Flying Gorilla</a>
+  >> <a href="sssrfr/">Spongebob run</a>
 </pre>
 
 <hr>
 
 <div class="footer">
-  <small><a href="">nothingness</a> - made by Epick</small>
+  <small>nothingness - made by Epick • 1998-2026</small>
 </div>
 
 </div>
-
-<!-- 🔑 SCRIPT -->
-<script>
-  const ACCESS_KEY = "doaspin";
-
-  function checkKey() {
-    const input = document.getElementById("keyInput").value;
-
-    if (input === ACCESS_KEY) {
-      document.getElementById("loginScreen").style.display = "none";
-      document.getElementById("mainContent").style.display = "block";
-    } else {
-      document.getElementById("error").innerText = "ACCESS DENIED";
-    }
-  }
-</script>
 
 </body>
 </html>
