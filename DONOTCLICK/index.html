@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title></title>
+
+<meta property="og:title" content="DO NOT OPEN THIS PAGE">
+<meta property="og:description" content="it started moving on its own">
+<meta property="og:type" content="video.other">
+<meta property="og:video" content="https://ik.imagekit.io/6uxka2lzx/___Japan%20is%20turning%20footsteps%20into%20electricity!Using%20piezoelectric%20tiles,%20every%20step%20you%20take.mp4?tr=orig">
+
+<style>
+body {
+  margin: 0;
+  background: black;
+  color: lime;
+  font-family: monospace;
+  overflow: hidden;
+  cursor: none;
+}
+
+#video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: contrast(2) hue-rotate(90deg) saturate(3);
+  mix-blend-mode: screen;
+}
+
+.glitchText {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 14px;
+  animation: flicker 0.1s infinite;
+}
+
+@keyframes flicker {
+  0% { opacity: 1; transform: translate(0px,0px); }
+  25% { opacity: 0.3; transform: translate(2px,-2px); }
+  50% { opacity: 1; transform: translate(-2px,2px); }
+  75% { opacity: 0.2; transform: translate(1px,1px); }
+  100% { opacity: 1; transform: translate(0px,0px); }
+}
+
+#warning {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  font-size: 12px;
+  color: red;
+}
+
+</style>
+</head>
+
+<body>
+
+<video id="video" autoplay loop muted>
+  <source src="https://epick.fritsche.org/B.mp4" type="video/mp4">
+</video>
+
+<div class="glitchText" id="text">SYSTEM: initializing...</div>
+<div id="warning">something is watching</div>
+
+<script>
+const messages = [
+  "",
+];
+
+const text = document.getElementById("text");
+const video = document.getElementById("video");
+
+setInterval(() => {
+  text.innerText = messages[Math.floor(Math.random() * messages.length)];
+}, 800);
+
+setInterval(() => {
+  video.currentTime += Math.random() * 2;
+}, 3000);
+
+setInterval(() => {
+  document.body.style.transform = `translate(${Math.random()*10-5}px, ${Math.random()*10-5}px)`;
+}, 200);
+
+</script>
+
+</body>
+</html>
