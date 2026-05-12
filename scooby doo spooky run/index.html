@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SWF Loader</title>
+
+    <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
+
+    <style>
+        body {
+            margin: 0;
+            background: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #game {
+            width: 800px;
+            height: 600px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game"></div>
+
+<script>
+window.addEventListener("load", () => {
+    const ruffle = window.RufflePlayer.newest();
+    const player = ruffle.createPlayer();
+
+    document.getElementById("game").appendChild(player);
+
+    player.style.width = "800px";
+    player.style.height = "600px";
+
+    player.load("game.swf");
+});
+</script>
+
+</body>
+</html>
+</html>
