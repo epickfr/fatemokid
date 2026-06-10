@@ -33,9 +33,10 @@
 </head>
 <body>
 
-<video id="video" autoplay loop controls>
+<video id="video" autoplay loop controls playsinline>
     <source src="video.webm" type="video/webm">
-    Your browser does not support WebM.
+    <source src="video.mp4" type="video/mp4">
+    Your browser does not support video.
 </video>
 
 <script>
@@ -44,15 +45,21 @@ const video = document.getElementById("video");
 let audioCtx;
 let analyser;
 let dataArray;
+let source;
 let initialized = false;
+let running = false;
 
 async function initAudio() {
     if (initialized) return;
-    initialized = true;
 
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-    const source = audioCtx.createMediaElementSource(video);
+    try {
+        source = audioCtx.createMediaElementSource(video);
+    } catch (e) {
+        // prevents "already connected" error if re-init happens
+        return;
+    }
 
     analyser = audioCtx.createAnalyser();
     analyser.fftSize = 512;
@@ -62,11 +69,18 @@ async function initAudio() {
 
     dataArray = new Uint8Array(analyser.frequencyBinCount);
 
+    initialized = true;
+    running = true;
+
     animate();
 }
 
 function animate() {
+    if (!running) return;
+
     requestAnimationFrame(animate);
+
+    if (!analyser) return;
 
     analyser.getByteFrequencyData(dataArray);
 
@@ -77,26 +91,14 @@ function animate() {
     bass /= 15;
 
     const scale = 1 + bass / 1800;
-    const rotate = (bass - 50) / 40;
-    const glow = bass / 8;
+    const rotate = (bass - 60) / 50;
+    const glow = bass / 10;
 
-    video.style.transform =
-        `scale(${scale}) rotate(${rotate}deg)`;
-
-    video.style.filter =
-        `drop-shadow(0 0 ${glow}px white)`;
+    video.style.transform = `scale(${scale}) rotate(${rotate}deg)`;
+    video.style.filter = `drop-shadow(0 0 ${glow}px white)`;
 }
 
-video.addEventListener("play", async () => {
-    await initAudio();
-
-    if (audioCtx.state === "suspended") {
-        await audioCtx.resume();
-    }
-});
-
-// Some browsers require user interaction
-document.body.addEventListener("click", async () => {
+async function unlock() {
     await initAudio();
 
     if (audioCtx.state === "suspended") {
@@ -104,9 +106,15 @@ document.body.addEventListener("click", async () => {
     }
 
     if (video.paused) {
-        video.play();
+        await video.play();
     }
-}, { once: true });
+}
+
+// REQUIRED: user gesture for audio
+document.body.addEventListener("click", unlock, { once: true });
+document.body.addEventListener("touchstart", unlock, { once: true });
+
+video.addEventListener("play", unlock);
 </script>
 
 </body>
