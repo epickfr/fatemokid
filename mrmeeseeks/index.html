@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beat Reactive WebM Player</title>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        background: black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #video {
+        max-width: 80vw;
+        max-height: 80vh;
+        border-radius: 20px;
+        transition: transform 0.04s linear;
+        will-change: transform, filter;
+    }
+</style>
+</head>
+<body>
+
+<video id="video" autoplay loop controls>
+    <source src="video.webm" type="video/webm">
+    Your browser does not support WebM.
+</video>
+
+<script>
+const video = document.getElementById("video");
+
+let audioCtx;
+let analyser;
+let dataArray;
+let initialized = false;
+
+async function initAudio() {
+    if (initialized) return;
+    initialized = true;
+
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    const source = audioCtx.createMediaElementSource(video);
+
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 512;
+
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination);
+
+    dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+    animate();
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+
+    analyser.getByteFrequencyData(dataArray);
+
+    let bass = 0;
+    for (let i = 0; i < 15; i++) {
+        bass += dataArray[i];
+    }
+    bass /= 15;
+
+    const scale = 1 + bass / 1800;
+    const rotate = (bass - 50) / 40;
+    const glow = bass / 8;
+
+    video.style.transform =
+        `scale(${scale}) rotate(${rotate}deg)`;
+
+    video.style.filter =
+        `drop-shadow(0 0 ${glow}px white)`;
+}
+
+video.addEventListener("play", async () => {
+    await initAudio();
+
+    if (audioCtx.state === "suspended") {
+        await audioCtx.resume();
+    }
+});
+
+// Some browsers require user interaction
+document.body.addEventListener("click", async () => {
+    await initAudio();
+
+    if (audioCtx.state === "suspended") {
+        await audioCtx.resume();
+    }
+
+    if (video.paused) {
+        video.play();
+    }
+}, { once: true });
+</script>
+
+</body>
+</html>
